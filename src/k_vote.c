@@ -2281,6 +2281,9 @@ static boolean Y_DetermineStageStrike(void)
 
 void Y_StartVote(void)
 {
+	//McTophia
+	CON_LogMessage(M_GetText("Voting has begun!\n"));
+	//end
 	INT32 i = 0;
 
 	memset(&vote, 0, sizeof(vote));

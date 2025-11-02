@@ -106,7 +106,7 @@ static void K_MidVoteRunItBack(void)
 		newencore = (cv_kartencore.value == 1) || encoremode;
 	}
 
-	D_MapChange(gamemap, gametype, newencore, false, 0, false, false);
+	D_MapChange(gamemap, g_lastgametype, newencore, false, 0, false, false); //changed to lastgametype to avoid the vote passing at intermission and going to a race map on battle mode
 }
 
 static midVoteTypeDef_t g_midVoteTypeDefs[MVT__MAX] =

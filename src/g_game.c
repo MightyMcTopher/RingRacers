@@ -112,6 +112,21 @@ UINT32 mapmusposition; // Position to jump to
 UINT32 mapmusresume;
 UINT8 mapmusrng; // Random selection result
 
+//McTophia
+//custom variables
+int raceroundspassed = 0;
+int battleroundspassed = 0;
+
+int racesbeforechange = 2;
+int battlesbeforechange = 1;
+
+int modeswitchplayercount = 0;
+int gtchangecountdown = 0;
+int oldshoutcolor;
+
+extern consvar_t cv_rotategamemodes;
+//end
+
 INT16 gamemap = 1;
 boolean g_reloadingMap;
 UINT32 maptol;
@@ -3413,7 +3428,132 @@ void G_FinishExitLevel(void)
 		gameaction = ga_completed;
 		lastdraw = true;
 
-		CON_LogMessage(M_GetText("The round has ended.\n"));
+		//McTophia (The main event!)
+		CON_LogMessage(M_GetText("The round has ended."));
+		totalroundspassed++;
+
+		//resetting every map played value
+		if (totalroundspassed == 127) {
+			INT32 i;
+			for (i = 0; i < nummapheaders; i++)
+			{
+				if (mapheaderinfo[i]->justPlayed > 0)
+				{
+					mapheaderinfo[i]->justPlayed = 0;
+				}
+			}
+			totalroundspassed = 0;
+		}
+
+
+
+		int i = 0;
+		modeswitchplayercount = 0;
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (playeringame[i] && !players[i].spectator)
+			{
+			modeswitchplayercount++;
+			}
+		}
+		
+		if (gtchangecountdown < 1) {
+			if (modeswitchplayercount < 2)
+			{
+				racesbeforechange = 16;
+				battlesbeforechange = 1;
+				gtchangecountdown = 0;
+			}
+			if (modeswitchplayercount >= 2)
+			{
+				racesbeforechange = 8;
+				battlesbeforechange = 1;
+				gtchangecountdown = 0;
+			}
+			if (modeswitchplayercount >= 4)
+			{
+				racesbeforechange = 6;
+				battlesbeforechange = 1;
+				gtchangecountdown = 0;
+			}
+			if (modeswitchplayercount >= 8)
+			{
+				racesbeforechange = 5;
+				battlesbeforechange = 1;
+				gtchangecountdown = racesbeforechange + battlesbeforechange;
+			}
+			if (modeswitchplayercount >= 12)
+			{
+				racesbeforechange = 4;
+				battlesbeforechange = 1;
+				gtchangecountdown = racesbeforechange + battlesbeforechange;
+			}
+			if (modeswitchplayercount >= 14)
+			{
+				racesbeforechange = 3;
+				battlesbeforechange = 1;
+				gtchangecountdown = racesbeforechange + battlesbeforechange;
+			}
+		}
+		else if (gtchangecountdown >= 1)
+		{
+			gtchangecountdown--;
+		}
+
+		if (gametype == GT_RACE)
+		{
+			raceroundspassed++;
+			CON_LogMessage(va(M_GetText(" (Race rounds passed: %d)"), raceroundspassed));
+			CON_LogMessage(va(M_GetText(" (Current players: %d)"), modeswitchplayercount));
+			if (cv_rotategamemodes.value == true) {
+				if (raceroundspassed >= racesbeforechange) {
+					oldshoutcolor = cv_shoutcolor.value;
+					CV_SetValue(&cv_shoutcolor, 5);
+					char *gtchangemsg = "Get ready to BATTLE this round!";
+					DoSayCommand(gtchangemsg, 0, HU_SHOUT, 0);
+					CV_SetValue(&cv_shoutcolor, oldshoutcolor);
+					CON_LogMessage(M_GetText(" Switching game type to BATTLE"));
+					battleroundspassed = 0;
+					G_SetGametype(GT_BATTLE);
+				}
+				else if (raceroundspassed >= racesbeforechange - 1) {
+					oldshoutcolor = cv_shoutcolor.value;
+					CV_SetValue(&cv_shoutcolor, 5);
+					char *gtchangemsg = "Gametype will switch to BATTLE after this race!";
+					DoSayCommand(gtchangemsg, 0, HU_SHOUT, 0);
+					CV_SetValue(&cv_shoutcolor, oldshoutcolor);
+				}
+			}	
+			CON_LogMessage(M_GetText("\n"));
+		}
+
+		else if (gametype == GT_BATTLE)
+		{
+			battleroundspassed++;
+			CON_LogMessage(va(M_GetText(" (Battle rounds passed: %d)"), battleroundspassed));
+			CON_LogMessage(va(M_GetText(" (Current players: %d)"), modeswitchplayercount));
+			if (cv_rotategamemodes.value == true) {
+				if (battleroundspassed >= battlesbeforechange) {
+					oldshoutcolor = cv_shoutcolor.value;
+					CV_SetValue(&cv_shoutcolor, 8);
+					char *gtchangemsg = "Get ready to RACE this round!";
+					DoSayCommand(gtchangemsg, 0, HU_SHOUT, 0);
+					CV_SetValue(&cv_shoutcolor, oldshoutcolor);
+					CON_LogMessage(M_GetText(" Switching game type to RACE"));
+					raceroundspassed = 0;
+					G_SetGametype(GT_RACE);
+				}
+				else if (battleroundspassed >= battlesbeforechange - 1) {
+					oldshoutcolor = cv_shoutcolor.value;
+					CV_SetValue(&cv_shoutcolor, 8);
+					char *gtchangemsg = "Gametype will switch to RACE after this battle!";
+					DoSayCommand(gtchangemsg, 0, HU_SHOUT, 0);
+					CV_SetValue(&cv_shoutcolor, oldshoutcolor);
+				}
+			CON_LogMessage(M_GetText("\n"));
+		}
+	}
+
 
 		// Remove CEcho text on round end.
 		HU_ClearCEcho();
@@ -5694,7 +5834,7 @@ void G_InitNew(UINT8 pencoremode, INT32 map, boolean resetplayer, boolean skippr
 			CON_LogMessage(va(": %s", title));
 			Z_Free(title);
 		}
-		CON_LogMessage("\"\n");
+		CON_LogMessage(va("\" (GAMETYPE: %s)\n", gametypes[gametype]->name));
 	}
 
 	G_AddMapToBuffer(gamemap - 1);

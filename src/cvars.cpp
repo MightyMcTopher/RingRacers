@@ -592,6 +592,13 @@ consvar_t cv_showviewpointtext = Server("showviewpointtext", "On").on_off();
 consvar_t cv_skipmapcheck = Server("skipmapcheck", "Off").on_off();
 consvar_t cv_sleep = Server("cpusleep", "1").min_max(0, 1000/TICRATE);
 
+//McTophia
+// Gamemode rotation settings
+consvar_t cv_rotategamemodes = Server("rotategamemodes", "Off").on_off();
+consvar_t cv_autosetrotation = Server("autosetrotation", "On").on_off();
+consvar_t cv_racesbeforechange = Server("racesbeforechange", "2").values(CV_Unsigned);
+consvar_t cv_battlesbeforechange = Server("battlesbeforechange", "1").values(CV_Unsigned);
+
 #ifdef USE_STUN
 	/* https://gist.github.com/zziuni/3741933 */
 	/* I can only trust google to keep their shit up :y */
