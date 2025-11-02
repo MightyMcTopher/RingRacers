@@ -52,6 +52,7 @@
 #include "k_grandprix.h"
 #include "k_color.h"
 #include "music.h"
+#include "console.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
