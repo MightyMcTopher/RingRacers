@@ -217,6 +217,10 @@ static INT32 g_local_voice_threshold_time = 0;
 float g_local_voice_last_peak = 0;
 boolean g_local_voice_detected = false;
 
+//McTophia
+extern int raceroundspassed;
+extern int battleroundspassed;
+
 // engine
 
 // Must be a power of two
@@ -7483,6 +7487,9 @@ void NetUpdate(void)
 				CONS_Printf("DEDICATED: No nodes %s, idling...\n", idlereason);
 				realtics = 0;
 				dedicatedidle = DEDICATEDIDLETIME;
+				//McTophia
+				raceroundspassed = 0;
+				battleroundspassed = 0;
 			}
 		}
 	}
