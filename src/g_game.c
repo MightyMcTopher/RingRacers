@@ -3430,22 +3430,6 @@ void G_FinishExitLevel(void)
 
 		//McTophia (The main event!)
 		CON_LogMessage(M_GetText("The round has ended."));
-		totalroundspassed++;
-
-		//resetting every map played value
-		if (totalroundspassed == 127) {
-			INT32 i;
-			for (i = 0; i < nummapheaders; i++)
-			{
-				if (mapheaderinfo[i]->justPlayed > 0)
-				{
-					mapheaderinfo[i]->justPlayed = 0;
-				}
-			}
-			totalroundspassed = 0;
-		}
-
-
 
 		int i = 0;
 		modeswitchplayercount = 0;
